@@ -57,7 +57,7 @@ export default class MasterLayout extends Component {
               <Deliver areas={this.state.areas}/>
               : this.state.tab === 2 ?
                 <AddRestaurant areas={this.state.areas}/>
-                : <RestaurantOrders />
+                : <RestaurantOrders areas={this.state.areas}/>
           }
         </div>
       </MuiThemeProvider>

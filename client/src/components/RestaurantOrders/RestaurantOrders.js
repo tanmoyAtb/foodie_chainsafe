@@ -1,13 +1,10 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import NativeSelect from '@material-ui/core/NativeSelect';
 import { Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-import { searchAreaOrder } from "../../code/functions";
+import { getOrder, getItem, approveOrder } from "../../code/functions";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -33,7 +30,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 14,
     color: theme.palette.writing.main
   },
-  
+
 }));
 
 export default function NativeSelects(props) {
@@ -64,12 +61,35 @@ export default function NativeSelects(props) {
   ]);
 
   React.useEffect(() => {
-    // addToDeliveries(0);
+    async function getOrders() {
+      let orderItem = await getOrder(0);
+      if(!orderItem) return;
+      let itemNames = [];
+      for (let i = 0; i < orderItem.items.length; i++) {
+        let myItem = await getItem(parseInt(orderItem.restaurantId), parseInt(orderItem.items[i]));
+        itemNames.push({
+          name: myItem.name,
+          price: parseInt(myItem.price),
+          count: parseInt(orderItem.quantities[i])
+        });
+      }
+      let total = 0;
+      itemNames.forEach(item => { total += item.price * item.count });
+      let myOrder = {
+        id: 0,
+        fullAddress: orderItem.fullAddress,
+        menu: itemNames,
+        amount: total,
+        restaurantApproved: orderItem.restaurantApproved
+      }
+      setOrders([myOrder]);
+    }
+    getOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const approveOrder = () => {
-
+  const approveOrderLocal = (i) => {
+    approveOrder(orders[i].id);
   }
 
   return (
@@ -100,7 +120,10 @@ export default function NativeSelects(props) {
                   <div>
                     <Typography variant="h6">{"$ " + order.amount}</Typography>
                   </div>
-                  <Button size="small" color="primary" onClick={approveOrder}>Approve order</Button>
+                  {order.restaurantApproved ?
+                    <Typography variant="body2" style={{textAlign: "center", marginTop: 5, marginLeft: 10}}>Approved</Typography> :
+                    <Button size="small" color="primary" onClick={() => approveOrderLocal(i)}>Approve order</Button>
+                  }
                 </div>
               </CardContent>
             </Card>

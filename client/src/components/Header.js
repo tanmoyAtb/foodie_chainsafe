@@ -38,7 +38,7 @@ export default function ButtonAppBar(props) {
       <AppBar className={classes.appbar} position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
-            DEL DAPP
+            Foodie
           </Typography>
           <Button className={props.tab === 0 ? classes.activeButton : classes.button} color="primary" onClick={() => props.setTab(0)}>Order</Button>
           <Button className={props.tab === 1 ? classes.activeButton : classes.button} color="primary" onClick={() => props.setTab(1)}>Deliver</Button>

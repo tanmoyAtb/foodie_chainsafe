@@ -9,9 +9,9 @@ import CardContent from '@material-ui/core/CardContent';
 import Restaurants from "./Restaurants";
 import Menu from "./Menu";
 import Checkout from "./Checkout";
-import { searchAreaRestaurant, getRestaurant, getOrder, getItem, placeOrder, getContract } from "../../code/functions";
+import { searchAreaRestaurant, getOrdererOrders, getRestaurant, getItem, getOrder, placeOrder, getContract } from "../../code/functions";
 
-const delivery_fee = 100; 
+const delivery_fee = 100;
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -73,7 +73,7 @@ export default function NativeSelects(props) {
     console.log(myRes);
     let itemCount = parseInt(myRes.itemCount);
     let newItems = [];
-    for(let i=0; i<itemCount; i++) {
+    for (let i = 0; i < itemCount; i++) {
       let newItem = await getItem(restaurants[index].id, i);
       newItems.push({
         name: newItem.name,
@@ -90,30 +90,42 @@ export default function NativeSelects(props) {
   const [restaurant, setRestaurant] = React.useState(undefined);
   const [menu, setMenu] = React.useState([]);
 
-  const [orders, setOrders] = React.useState([
-    {
-      name: "Tanmoy",
-      phone: "xxx xxx xx",
-      fullAddress: "Right here, right now",
-      restaurant: {
-        name: "Matt over",
-        items: [
-          { name: "idli", price: 20, count: 3 }
-        ]
-      },
-      amount: 40,
-      area: "Bangalore",
-      res_approved: false
-    }
-  ])
+  const [orders, setOrders] = React.useState([])
 
   const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
+    async function getOrders() {
+      let orderItem = await getOrder(0);
+      if(!orderItem) return;
+      let restaurant = await getRestaurant(parseInt(orderItem.restaurantId));
+      let itemNames = [];
+      for (let i = 0; i < orderItem.items.length; i++) {
+        let myItem = await getItem(parseInt(orderItem.restaurantId), parseInt(orderItem.items[i]));
+        itemNames.push({
+          name: myItem.name,
+          price: parseInt(myItem.price),
+          count: parseInt(orderItem.quantities[i])
+        });
+      }
+      let total = 0;
+      itemNames.forEach(item => { total += item.price * item.count });
+      let myOrder = {
+        fullAddress: orderItem.fullAddress,
+        restaurant: {
+          name: restaurant.name,
+          items: itemNames,
+        },
+        amount: total,
+        area: props.areas[parseInt(orderItem.areaId)]
+      }
+      setOrders([myOrder]);
+    }
+    getOrders();
     let instance = getContract();
     instance.events.newOrder({}, function (error, event) { console.log(event); })
       .on('data', function (event) {
-        orderProcess(event);        
+        orderProcess(event);
       })
       .on('changed', function (event) {
         console.log("Event changed"); // same results as the optional callback above
@@ -122,13 +134,37 @@ export default function NativeSelects(props) {
         console.log(error);
         setLoading(false);
       });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const orderProcess = async (order) => {
     console.log(order);
     let orderItem = await getOrder(parseInt(order.returnValues.orderId));
     console.log(orderItem);
+    let restaurant = await getRestaurant(parseInt(orderItem.restaurantId));
+    console.log(restaurant);
+    let itemNames = [];
+    for (let i = 0; i < orderItem.items.length; i++) {
+      let myItem = await getItem(parseInt(orderItem.restaurantId), parseInt(orderItem.items[i]));
+      itemNames.push({
+        name: myItem.name,
+        price: parseInt(myItem.price),
+        count: parseInt(orderItem.quantities[i])
+      });
+    }
+    let total = 0;
+    itemNames.forEach(item => { total += item.price * item.count });
+    console.log(itemNames);
+    let myOrder = {
+      fullAddress: orderItem.fullAddress,
+      restaurant: {
+        name: restaurant.name,
+        items: itemNames,
+      },
+      amount: total,
+      area: props.areas[parseInt(orderItem.areaId)]
+    }
+    setOrders([myOrder]);
     setLoading(false);
     setCheckout(false);
     setRestaurant(undefined);
@@ -139,7 +175,7 @@ export default function NativeSelects(props) {
     let quantities = [];
     let total = 0;
     order.forEach((orderCount, i) => {
-      if(orderCount > 0) {
+      if (orderCount > 0) {
         itemsSelected.push(i);
         quantities.push(orderCount);
         total += menu[i].price * orderCount;
@@ -167,13 +203,13 @@ export default function NativeSelects(props) {
     <div className={classes.root}>
       {checkout ?
         <Checkout restaurant={restaurant} menu={menu} order={order} loading={loading}
-          setRestaurant={setRestaurant} setCheckout={setCheckout} confirmOrder={confirmOrder}/>
+          setRestaurant={setRestaurant} setCheckout={setCheckout} confirmOrder={confirmOrder} />
         :
         restaurant ?
           <Menu restaurant={restaurant} menu={menu}
             setRestaurant={setRestaurant} order={order} addToOrder={addToOrder}
-            removeFromOrder={removeFromOrder} setCheckout={setCheckout} 
-            />
+            removeFromOrder={removeFromOrder} setCheckout={setCheckout}
+          />
           : <div>
             {orders.length ?
               <div style={{ margin: "30px 0px" }}>
@@ -195,13 +231,11 @@ export default function NativeSelects(props) {
                           }
                         </div>
                         <div style={{ flex: 1 }}>
-                          <Typography variant="h6">{order.name}</Typography>
-                          <Typography variant="body2">{order.fullAddress}</Typography>
-                          <Typography variant="body2">{order.phone}</Typography>
                         </div>
                         <div>
                           <Typography variant="h6">{"$ " + order.amount}</Typography>
                           <Typography variant="body2">{order.area}</Typography>
+                          <Typography variant="body2">{order.fullAddress}</Typography>
                         </div>
                       </div>
                     </CardContent>
@@ -237,8 +271,8 @@ export default function NativeSelects(props) {
                 </NativeSelect>
               </FormControl>
             </div>
-            <Restaurants restaurants={restaurants} setRestaurant={setRestaurant} area={state.area} 
-              showMenu={showMenu}/>
+            <Restaurants restaurants={restaurants} setRestaurant={setRestaurant} area={state.area}
+              showMenu={showMenu} />
           </div>
       }
     </div>

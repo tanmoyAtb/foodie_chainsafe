@@ -240,3 +240,48 @@ export function lisenEvent(contract) {
       console.log(result);
   });
 }
+
+
+export async function getRestaurantOrders(): any{
+  try {
+    const result = await contract.methods.getRestaurantOrders().call();
+    console.log(result);
+    return result;
+  }catch (e) {
+    console.log(e.stack);
+  }
+  return null;
+}
+
+export async function getDelivererOrders(): any{
+  try {
+    const result = await contract.methods.getDelivererOrders().call();
+    console.log(result);
+    return result;
+  }catch (e) {
+    console.log(e.stack);
+  }
+  return null;
+}
+
+export async function getDelivererOrder(orderId: number): any{
+  try {
+    const result = await contract.methods.getDelivererOrder(orderId).call();
+    console.log(result);
+    return result;
+  }catch (e) {
+    console.log(e.stack);
+  }
+  return null;
+}
+
+export async function getOrdererOrders(): any{
+  try {
+    const result = await contract.methods.getOrdererOrders().call();
+    console.log(result);
+    return result;
+  }catch (e) {
+    console.log(e.stack);
+  }
+  return null;
+}

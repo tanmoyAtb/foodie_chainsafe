@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
-import {searchAreaOrder} from "../../code/functions";
+import { searchAreaOrder, getOrder, getItem } from "../../code/functions";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -41,6 +41,9 @@ export default function NativeSelects(props) {
     area: '',
   });
 
+
+  const [orders, setOrders] = React.useState([]);
+
   const handleChange = name => async event => {
     let temp = event.target.value;
     setState({
@@ -48,36 +51,45 @@ export default function NativeSelects(props) {
       [name]: temp,
     });
     console.log(temp);
-    let res = await searchAreaOrder(parseInt(temp));
-    console.log(res);
-    // if (res) {
-    //   let tempRes = [];
-    //   res[0].forEach((resItem, i) => {
-    //     tempRes.push({
-    //       id: res[0][i],
-    //       name: res[1][i],
-    //       address: res[2][i],
-    //       area: props.areas[parseInt(temp)]
-    //     })
-    //   })
-    //   setRestaurants([...tempRes]);
-    // }
-  };
+    let orders = await searchAreaOrder(parseInt(temp));
+    let allOrders = [];
+    for(let j=0; j<orders[0].length; j++) {
+      console.log("h-1");
 
-  const [orders, setOrders] = React.useState([
-    {
-      fullAddress: "I'm right here.",
-      amount: 50
-    },
-    {
-      fullAddress: "I'm right there.",
-      amount: 90
-    },
-    {
-      fullAddress: "I'm right over here.",
-      amount: 35
+      let orderItem = await getOrder(parseInt(orders[0][j]));
+      console.log(orderItem);
+      let itemNames = [];
+      console.log("h0")
+
+      for (let i = 0; i < orderItem.items.length; i++) {
+        let myItem = await getItem(parseInt(orderItem.restaurantId), parseInt(orderItem.items[i]));
+        itemNames.push({
+          name: myItem.name,
+          price: parseInt(myItem.price),
+          count: parseInt(orderItem.quantities[i])
+        });
+      }
+      console.log("h1")
+      let total = 0;
+      itemNames.forEach(item => { total += item.price * item.count });
+      console.log("h2")
+
+      let myOrder2 = {
+        id: parseInt(orders[0][j]),
+        fullAddress: orderItem.fullAddress,
+        amount: total,
+      }
+      console.log("h3")
+
+      allOrders.push(myOrder2);
+      console.log("h4")
+
     }
-  ]);
+    console.log(allOrders);
+    setOrders([...allOrders]);
+  }
+
+
 
   const [deliveries, setDeliveries] = React.useState([]);
 
@@ -94,7 +106,7 @@ export default function NativeSelects(props) {
   }
 
   React.useEffect(() => {
-    addToDeliveries(0);
+    // addToDeliveries(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -110,13 +122,13 @@ export default function NativeSelects(props) {
             {deliveries.map((delivery, i) => (
               <Card key={i} className={classes.cardDelivery}>
                 <CardContent>
-                  <div style={{display: "flex"}}>
+                  <div style={{ display: "flex" }}>
                     <div>
                       <Typography variant="h6">{delivery.name}</Typography>
                       <Typography variant="body2">{delivery.fullAddress}</Typography>
                       <Typography variant="body2">{delivery.phone}</Typography>
                     </div>
-                    <div style={{flex: 1}}/>
+                    <div style={{ flex: 1 }} />
                     <div>
                       <Typography variant="h6">{"$ " + delivery.amount}</Typography>
                       <Typography variant="body2">{delivery.area}</Typography>

@@ -4,43 +4,32 @@ import { initiateContract } from './code/functions';
 
 class App extends Component {
 
-  state = { loading: true};
+  state = { loading: true };
 
   componentDidMount = async () => {
     try {
-
-      // // Get network provider and web3 instance.
-      // const web3 = await getWeb3();
-      // // Use web3 to get the user's accounts.
-      // const accounts = await web3.eth.getAccounts();
-      // // Get the contract instance.
-      // const networkId = await web3.eth.net.getId();
-      // const deployedNetwork = FoodieContract.networks[networkId];
-
-      // const instance = new web3.eth.Contract(
-      //   FoodieContract.abi,
-      //   deployedNetwork && deployedNetwork.address,
-      // );
-
-      // //testing smart contract ....
-      // //All functions test....
-
-      // // functions.addArea("demo", instance, accounts[0]);
-      // // functions.getArea(0, instance);
-      // //functions.getAreas(instance);
-      // //functions.addRestaurant("Test Name", "demo", 0, instance, accounts[0]);
-      // //functions.getRestaurant(5, instance);
-      // //functions.addItem(5, "Fish", 200, instance, accounts[0]);
-      // //functions.getItem(5, 0, instance);
-      // //functions.register("User 1", "0xXXXXXXXX", instance, accounts[0]);
-
-
-      // // Set web3, accounts, and contract to the state, and then proceed with an
-      // // example of interacting with the contract's methods.
       await initiateContract();
+      // if ('serviceWorker' in navigator) {
+      //   const register = await navigator.serviceWorker.register('./sw.js');
+      //   console.log('waiting for acceptance');
+      //   const subscription = await register.pushManager.subscribe({
+      //     userVisibleOnly: true,
+      //     applicationServerKey: this.urlBase64ToUint8Array(this.publicVapidKey),
+      //   });
+      //   console.log('acceptance complete');
+
+      //   await fetch('http://localhost:5000/subscribe', {
+      //     method: 'POST',
+      //     body: JSON.stringify({ subscription: subscription, address: "0xbfb21c004EEDc4229d30485E09fcA941eB76223A" }),
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   });
+      // } else {
+      //   console.error('Service workers are not supported in this browser');
+      // }
       this.setState({ loading: false });
     } catch (error) {
-      // Catch any errors for any of the above operations.
       console.log(error);
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`,
@@ -48,6 +37,24 @@ class App extends Component {
       console.error(error);
     }
   };
+
+  // urlBase64ToUint8Array = (base64String) => {
+  //   const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  //   const base64 = (base64String + padding)
+  //     .replace(/-/g, '+')
+  //     .replace(/_/g, '/');
+  
+  //   const rawData = window.atob(base64);
+  //   const outputArray = new Uint8Array(rawData.length);
+  
+  //   for (let i = 0; i < rawData.length; ++i) {
+  //     outputArray[i] = rawData.charCodeAt(i);
+  //   }
+  //   return outputArray;
+  // }
+  
+  // publicVapidKey = 'BMF-3KbHJWcStzcHbA63XYySZX62vpOxyT7jslfCFuyWAx9T9mkp0IZJSB7INgIyAhcWyqrooCAwZOg1kmg-ss0';
+  
 
   render() {
     if (this.state.loading) {
