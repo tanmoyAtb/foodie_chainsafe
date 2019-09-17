@@ -51,14 +51,15 @@ export default class MasterLayout extends Component {
       <MuiThemeProvider theme={theme}>
         <div style={{ margin: "0px 20%" }}>
           <Header setTab={this.setTab} tab={this.state.tab} />
-          {this.state.tab === 0 ?
+          <AddRestaurant areas={this.state.areas}/>
+          {/* {this.state.tab === 0 ?
             <Order areas={this.state.areas}/>
             : this.state.tab === 1 ?
               <Deliver areas={this.state.areas}/>
               : this.state.tab === 2 ?
                 <AddRestaurant areas={this.state.areas}/>
                 : <RestaurantOrders areas={this.state.areas}/>
-          }
+          } */}
         </div>
       </MuiThemeProvider>
     );

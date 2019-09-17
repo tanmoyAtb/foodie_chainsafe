@@ -8,30 +8,36 @@ export async function initiateContract() {
   // Use web3 to get the user's accounts.
   const accounts = await web3.eth.getAccounts();
   // Get the contract instance.
+  console.log("here1");
   const networkId = await web3.eth.net.getId();
   const deployedNetwork = FoodieContract.networks[networkId];
+  console.log("here2");
 
   const instance = new web3.eth.Contract(
     FoodieContract.abi,
     deployedNetwork && deployedNetwork.address,
   );
+  console.log("here3");
 
   contract = instance;
   account = accounts[0];
-  
+  console.log("here4", account);
+
 }
 
 const GAS_COST: number = 3000000;
 
-export function getContract () {
+export function getContract() {
   return contract;
 }
 
 export async function addArea(area: string) {
   try {
-    const response = await contract.methods.addArea(area).send({from: account, gas: GAS_COST});
-    console.log(response);
-  }catch (e) {
+    console.log(account, GAS_COST);
+    const response = await contract.methods.addArea(area).send({ from: account, gas: GAS_COST });
+    console.log("resp", response);
+  } catch (e) {
+    console.log(e);
     console.log(e.stack);
   }
 }
@@ -41,27 +47,31 @@ export async function getArea(areaId: number): string {
     const result = await contract.methods.getArea(areaId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack)
   }
   return null;
 }
 
-export async function getAreas(): string[]{
+export async function getAreas(): string[] {
   try {
+    console.log("hereA");
     const result = await contract.methods.getAreas().call();
+    console.log("hereB");
+    console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
+    console.log(e);
     console.log(e.stack);
   }
-  return null;
+  return [];
 }
 
-export async function addRestaurant(name: string, address: string, areaId: number, fund: number){
+export async function addRestaurant(name: string, address: string, areaId: number, fund: number) {
   try {
-    const response = await contract.methods.addRestaurant(name, address, areaId).send({ from: account, gas: GAS_COST, value: fund});
+    const response = await contract.methods.addRestaurant(name, address, areaId).send({ from: account, gas: GAS_COST, value: fund });
     console.log(response);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
@@ -71,47 +81,47 @@ export async function getRestaurant(restuarentId: number): any {
     const result = await contract.methods.getRestaurant(restuarentId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
     return null;
   }
 }
 
-export async function addItem(restuarentId: number, name: string, price: number){
+export async function addItem(restuarentId: number, name: string, price: number) {
   try {
-    const response = await contract.methods.addItem(restuarentId, name, price).send({from: account, gas: GAS_COST});
+    const response = await contract.methods.addItem(restuarentId, name, price).send({ from: account, gas: GAS_COST });
     console.log(response);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
 
-export async function getItem(restuarentId: number, itemId: number): number{
+export async function getItem(restuarentId: number, itemId: number): number {
   try {
     const result = await contract.methods.getItem(restuarentId, itemId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 
-export async function register(name: string, addr: string, phoneNo: number){
+export async function register(name: string, addr: string, phoneNo: number) {
   try {
-    const response = await contract.methods.register(name, addr, phoneNo).send({from: account, gas: GAS_COST});
+    const response = await contract.methods.register(name, addr, phoneNo).send({ from: account, gas: GAS_COST });
     console.log(response);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
 export async function placeOrder(
-  items: number[], quantities: number[], areaId: number, fullAddress: string, restId: number, price: number){
+  items: number[], quantities: number[], areaId: number, fullAddress: string, restId: number, price: number) {
   try {
     const response = await contract.methods.placeOrder(items, quantities, areaId,
-      fullAddress, restId).send({from: account, gas: GAS_COST, value: price});
+      fullAddress, restId).send({ from: account, gas: GAS_COST, value: price });
     console.log(response);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
@@ -121,27 +131,27 @@ export async function getOrder(orderId: number): any {
     const result = await contract.methods.getOrder(orderId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 export async function cancelOrder(orderId: number): any {
   try {
-    const result = await contract.methods.cancelOrder(orderId).send({from: account, gas: GAS_COST});
+    const result = await contract.methods.cancelOrder(orderId).send({ from: account, gas: GAS_COST });
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 export async function receiveOrder(orderId: number): any {
   try {
-    const result = await contract.methods.receiveOrder(orderId).send({from: account, gas: GAS_COST});
+    const result = await contract.methods.receiveOrder(orderId).send({ from: account, gas: GAS_COST });
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
@@ -149,10 +159,10 @@ export async function receiveOrder(orderId: number): any {
 
 export async function approveOrder(orderId: number): any {
   try {
-    const result = await contract.methods.approveOrder(orderId).send({from: account, gas: GAS_COST});
+    const result = await contract.methods.approveOrder(orderId).send({ from: account, gas: GAS_COST });
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
@@ -160,10 +170,10 @@ export async function approveOrder(orderId: number): any {
 
 export async function reclaim(orderId: number): any {
   try {
-    const result = await contract.methods.reclaim(orderId).send({from: account, gas: GAS_COST});
+    const result = await contract.methods.reclaim(orderId).send({ from: account, gas: GAS_COST });
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
@@ -174,7 +184,7 @@ export async function searchAreaRestaurant(areaId: number): any {
     const result = await contract.methods.searchAreaRestaurant(areaId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
@@ -185,7 +195,7 @@ export async function searchAreaOrder(areaId: number): any {
     const result = await contract.methods.searchAreaOrder(areaId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
@@ -195,25 +205,25 @@ export async function getLockedBalanceForDelivery(orderId: number) {
   try {
     const result = await contract.methods.getLockedBalanceForDelivery(orderId).call();
     console.log(result);
-  }catch (e) {
+  } catch (e) {
     console.log(e);
   }
 }
 
 export async function acceptOrder(orderId: number, fund: number) {
   try {
-    const result = await contract.methods.acceptOrder(orderId).send({from: account, gas: GAS_COST, value: fund});
+    const result = await contract.methods.acceptOrder(orderId).send({ from: account, gas: GAS_COST, value: fund });
     console.log(result);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
 
 export async function confirmPickup(orderId: number) {
   try {
-    const result = await contract.methods.confirmPickup(orderId).send({from: account, gas: GAS_COST});
+    const result = await contract.methods.confirmPickup(orderId).send({ from: account, gas: GAS_COST });
     console.log(result);
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
 }
@@ -230,7 +240,7 @@ export function lisenEvent(contract) {
   //     // remove event from local database
   //   })
   //   .on('error', console.error);
-// watch for changes
+  // watch for changes
   var event = contract.newRestaurant();
   event.watch(function (error, result) {
     // result will contain various information
@@ -242,45 +252,45 @@ export function lisenEvent(contract) {
 }
 
 
-export async function getRestaurantOrders(): any{
+export async function getRestaurantOrders(): any {
   try {
     const result = await contract.methods.getRestaurantOrders().call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 
-export async function getDelivererOrders(): any{
+export async function getDelivererOrders(): any {
   try {
     const result = await contract.methods.getDelivererOrders().call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 
-export async function getDelivererOrder(orderId: number): any{
+export async function getDelivererOrder(orderId: number): any {
   try {
     const result = await contract.methods.getDelivererOrder(orderId).call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
 }
 
-export async function getOrdererOrders(): any{
+export async function getOrdererOrders(): any {
   try {
     const result = await contract.methods.getOrdererOrders().call();
     console.log(result);
     return result;
-  }catch (e) {
+  } catch (e) {
     console.log(e.stack);
   }
   return null;
